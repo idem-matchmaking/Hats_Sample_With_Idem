@@ -27,6 +27,9 @@ namespace Hats.Game.Data
 		[SerializeField]
 		private BotProfileRef _botProfileRef = null;
 
+		[SerializeField]
+		private bool _useIdemMatchmaking;
+
 		[Header("Network")]
 		[SerializeField]
 		private int _framesPerSecond = 20;
@@ -63,6 +66,7 @@ namespace Hats.Game.Data
 		public int MaxPowerupsInWorldAtTheSameTime { get => _maxPowerupsInWorldAtTheSameTime; }
 		public int MaxPowerupsToSpawnInOneTurn { get => _maxPowerupsToSpawnInOneTurn; }
 		public BotProfileRef BotProfileRef { get => _botProfileRef; }
+		public bool UseIdemMatchmaking { get => _useIdemMatchmaking; }
 		public int PowerupsValidForTurns { get => _powerupsValidForTurns; }
 		public int FramesPerSecond { get => _framesPerSecond; }
 		public float OverrideMaxMatchmakingTimeout { get => _overrideMaxMatchmakingTimeout; }

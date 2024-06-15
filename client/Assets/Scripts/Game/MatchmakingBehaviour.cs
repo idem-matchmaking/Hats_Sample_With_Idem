@@ -1,6 +1,7 @@
 using Beamable;
 using Beamable.Common.Content;
 using Beamable.Experimental.Api.Matchmaking;
+using Game.UI.Matchmaking;
 using Hats.Game.Data;
 using System;
 using System.Collections.Generic;
@@ -21,64 +22,43 @@ namespace Hats.Game
 		[Header("Content Refs")]
 		public SimGameTypeRef GameTypeRef;
 
-		[Header("Runtime Values")]
-		[ReadOnly]
-		public MatchmakingHandle MatchmakingHandle = null;
-
-		[ReadOnly]
-		public bool IsSearching;
-
-		public UnityEvent OnTimedOut;
+		public IMatchmakingService MatchmakingService { get; private set; }
 
 		[SerializeField]
 		private Configuration _configuration = null;
-
 		private BeamContext _beamContext;
+
+		private void OnEnable()
+		{
+			if (_configuration == null)
+			{
+				Debug.LogError("MatchmakingBehaviour: Configuration is not set!");
+				return;
+			}
+
+			MatchmakingService = _configuration.UseIdemMatchmaking
+				? new IdemMatchmaking(GameTypeRef.Id)
+				: new BeamableMatchmaking(GameTypeRef.Id);
+			
+			MatchmakingService.OnMatchReady += OnMatchReady;
+		}
 
 		public async void FindGame()
 		{
-			IsSearching = true;
-			_beamContext = BeamContext.Default;
-			await _beamContext.OnReady;
-
-			Debug.Log($"Starting matchmaking with game_type={GameTypeRef.Id} override timeout={_configuration.OverrideMaxMatchmakingTimeout} ...");
-			// var handle = await _beamContext.Api.Experimental.MatchmakingService.StartMatchmaking(GameTypeRef.Id);
-			
-			MatchmakingHandle = await _beamContext.Api.Experimental.MatchmakingService.StartMatchmaking(
-				GameTypeRef.Id,
-				readyHandler: OnMatchReady,
-				timeoutHandler: OnMatchTimedOut
-			);
-
-			Debug.Log($"Matchmaking started with handle={MatchmakingHandle}");
-		}
-
-		private void OnMatchReady(MatchmakingHandle handle)
-		{
-			Debug.Assert(handle.State == MatchmakingState.Ready);
-
-			var dbids = MatchmakingHandle.Status.Players;
-			var gameId = MatchmakingHandle.Status.GameId;
-			var matchId = handle.Match.matchId;
-
-			Debug.Log($"Match is ready! Found matchID={matchId} gameId={gameId}");
-			Debug.Log($"Starting match with DBIDs={string.Join(",", dbids.ToArray())}");
-
-			List<long> dbidsAsLong = dbids.Select(i => long.Parse(i)).ToList();
-			HatsScenes.LoadGameScene(gameId, dbidsAsLong);
-		}
-
-		private void OnMatchTimedOut(MatchmakingHandle handle)
-		{
-			Debug.Log($"Matchmaking timed out! state={handle.State}");
-			IsSearching = false;
-			OnTimedOut?.Invoke();
+			await MatchmakingService.FindGame();
 		}
 
 		public async void Cancel()
 		{
-			IsSearching = false;
-			await MatchmakingHandle.Cancel();
+			await MatchmakingService.Cancel();
+		}
+
+		private void OnMatchReady(string gameId, List<long> playerIds)
+		{
+			Debug.Log($"Match is ready! Found gameId={gameId}");
+			Debug.Log($"Starting match with DBIDs={string.Join(",", playerIds.ToArray())}");
+
+			HatsScenes.LoadGameScene(gameId, playerIds);
 		}
 	}
 }

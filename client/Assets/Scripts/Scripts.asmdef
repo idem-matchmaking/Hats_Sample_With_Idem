@@ -12,7 +12,8 @@
         "DOTween.Modules",
         "Unity.Beamable",
         "VisStickyNotesEditor",
-        "CartoonFXEasyEditor"
+        "CartoonFXEasyEditor",
+        "IdemServiceAsmdef"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

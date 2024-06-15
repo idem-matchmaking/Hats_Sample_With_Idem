@@ -59,7 +59,7 @@ public class GameSelectionController : MonoBehaviour
 
 	public void HandlePlayCancelButtonClick()
 	{
-		if (MatchmakingBehaviour.IsSearching)
+		if (MatchmakingBehaviour.MatchmakingService?.IsSearching ?? false)
 		{
 			MatchmakingBehaviour.Cancel();
 			BringUIIntoCancelledState();
@@ -102,7 +102,7 @@ public class GameSelectionController : MonoBehaviour
 	// Start is called before the first frame update
 	private void Start()
 	{
-		MatchmakingBehaviour.OnTimedOut.AddListener(() => HandleOnMatchmakingTimedOut());
+		MatchmakingBehaviour.MatchmakingService.OnTimedOut += HandleOnMatchmakingTimedOut;
 		MusicManager.Instance.PlayMenuMusic();
 
 		LoadingSpinner.SetActive(false);
@@ -150,7 +150,7 @@ public class GameSelectionController : MonoBehaviour
 
 	private string GetSecondsRemainingMessage()
 	{
-		if (MatchmakingBehaviour.MatchmakingHandle == null)
+		if (MatchmakingBehaviour.MatchmakingService?.State == null)
 			return "";
 
 		return "Get ready!";
@@ -163,11 +163,11 @@ public class GameSelectionController : MonoBehaviour
 
 	private string GetStatusMessage()
 	{
-		if (MatchmakingBehaviour.MatchmakingHandle == null)
+		if (MatchmakingBehaviour.MatchmakingService?.State == null)
 		{
 			return "Starting Search ...";
 		}
-		switch (MatchmakingBehaviour.MatchmakingHandle.State)
+		switch (MatchmakingBehaviour.MatchmakingService.State)
 		{
 			case MatchmakingState.Searching:
 				return "Finding Match ...";
