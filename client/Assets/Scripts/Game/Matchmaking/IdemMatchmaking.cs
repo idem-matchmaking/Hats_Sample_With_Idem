@@ -18,7 +18,6 @@ namespace Game.UI.Matchmaking
 				: MatchmakingState.Cancelled;
 		
 		public event Action<string, List<long>> OnMatchReady;
-		// TODO_IDEM implement search timeout
 		public event Action OnTimedOut;
 
 		private readonly string[] _servers = {"MainServer"};
@@ -27,12 +26,12 @@ namespace Game.UI.Matchmaking
 
 		public IdemMatchmaking(string gameModeId)
 		{
-			// TODO_IDEM
 			// this.gameModeId = gameModeId;
 			this.gameModeId = "1v1";
 			idemService = BeamContext.Default.IdemService();
 			idemService.OnMatchReady += matchInfo =>
 				OnMatchReady?.Invoke(matchInfo.matchId, matchInfo.players.Select(p => long.Parse(p.playerId)).ToList());
+			idemService.OnMatchmakingStopped += () => OnTimedOut?.Invoke();
 		}
 		
 		public async Task FindGame()
@@ -43,6 +42,7 @@ namespace Game.UI.Matchmaking
 		public async Task Cancel()
 		{
 			await idemService.StopMatchmaking();
+			OnTimedOut?.Invoke();
 		}
 	}
 }

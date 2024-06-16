@@ -228,7 +228,7 @@
       "dependencies": {
         "com.beamable.server": "1.19.20"
       },
-      "hash": "d5380605981d14611914af3253e4dcf07a1f93fe"
+      "hash": "64e545750604c80e50188e9e0e109c1d8fc899e8"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
