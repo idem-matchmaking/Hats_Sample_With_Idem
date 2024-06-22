@@ -11,7 +11,7 @@ namespace Game.UI.Matchmaking
 {
 	public class IdemMatchmaking : IMatchmakingService
 	{
-		public MatchmakingState? State => idemService.IsMatchmaking
+		public MatchmakingState? State => idemService.IsMatchmaking || idemService.CurrentMatchInfo is { ready: false }
 			? MatchmakingState.Searching
 			: idemService.CurrentMatchInfo?.ready ?? false
 				? MatchmakingState.Ready
